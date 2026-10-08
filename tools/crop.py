@@ -13,7 +13,12 @@ for p in range(a["page"], b["page"]+1):
     if p > doc.page_count: break
     page = doc[p-1]; H = page.rect.height; W = page.rect.width
     y0 = a["y"]-8 if p == a["page"] else TOP
-    y1 = b["y"]-8 if p == b["page"] else H-BOT
+    if p == b["page"]:
+        # next song's header (title may sit above its number): stop above it
+        near = [w[1] for w in page.get_text("words") if b["y"]-45 < w[3] <= b["y"]+20 and w[1] < b["y"]+5]
+        y1 = min([b["y"]] + near) - 8
+    else:
+        y1 = H-BOT
     if y1 - y0 < 20: continue
     pix = page.get_pixmap(dpi=dpi, clip=pymupdf.Rect(0, y0, W, y1), colorspace=pymupdf.csGRAY)
     im = Image.frombytes("L", (pix.width, pix.height), pix.samples)

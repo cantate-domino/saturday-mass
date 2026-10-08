@@ -7,7 +7,7 @@
    A song left as {} shows "To be announced".
 */
 window.SITE = {
-  updated: "08 Oct 2026, 20:40 (UTC+7)"
+  updated: "08 Oct 2026, 21:14 (UTC+7)"
 };
 
 window.WEEKS = [
@@ -16,7 +16,7 @@ window.WEEKS = [
     note: "",
     songs: {
       entrance:    { no: 127, title: "All the Ends of the Earth", composer: "Bob Dufford, S.J.", youtube: "https://youtu.be/WURSnRG-bkQ" },
-      offertory:   {},
+      offertory:   { no: 170, title: "Christians, Let Us Love One Another", composer: "Tune: Picardy", youtube: "https://www.youtube.com/watch?v=zGnJ1C-zYCo" },
       recessional: { no: 200, title: "Hail, Holy Queen",          composer: "",                  youtube: "https://youtu.be/pSImGYMPNSU" }
     }
   }
