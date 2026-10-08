@@ -1,4 +1,5 @@
-"""crop.py BOOK.pdf INDEX.json SONG_NO OUT.png [dpi]
+"""crop.py BOOK.pdf INDEX.json PDF_SONG_NO OUT.png [dpi]
+PDF_SONG_NO is the number in the PDF, not the printed book. Name OUT after the song title.
 Cut one song from the ICLA Song Book into a single tall image."""
 import pymupdf, json, sys
 from PIL import Image, ImageOps
@@ -32,6 +33,9 @@ Hh = sum(p.height for p in parts) + gap*(len(parts)+1)
 canvas = Image.new("L", (x1-x0, Hh), 255); y = gap
 for p in parts:
     canvas.paste(p.crop((x0, 0, x1, p.height)), (0, y)); y += p.height + gap
+# blank the PDF song number (the community's printed book is numbered differently)
+from PIL import ImageDraw
+ImageDraw.Draw(canvas).rectangle((0, 0, int(dpi*0.82), int(dpi*0.54)), fill=255)
 canvas = canvas.quantize(8, dither=Image.Dither.NONE)
 canvas.save(out, optimize=True)
 print(out, canvas.size, "pages", a["page"], "->", b["page"], "|", a["title"])

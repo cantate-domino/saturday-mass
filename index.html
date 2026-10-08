@@ -41,6 +41,8 @@ header{text-align:center;padding:28px 0 14px}
 .house{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0}
 h1{font-family:var(--serif);font-weight:500;font-size:clamp(30px,6vw,44px);line-height:1.1;margin:6px 0 4px}
 .date{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--red);margin:0}
+.feast{font-family:var(--serif);font-size:18px;color:var(--ink-2);margin:2px 0 0}
+.feast:empty{display:none}
 .weekpick{margin-top:12px;display:inline-flex;gap:8px;align-items:center;font-size:14px;color:var(--ink-2)}
 .weekpick select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
 .banner{margin:14px auto 0;max-width:560px;font-size:14px;background:var(--red-soft);color:var(--ink);border-radius:10px;padding:8px 12px}
@@ -55,7 +57,7 @@ nav.jump a.on{background:var(--red);border-color:var(--red);color:#fff}
 nav.jump a.on b{color:#fff}
 
 /* song cards */
-main{padding:18px 0 8px}
+main{padding:0 0 8px}
 .song{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin:0 0 22px;padding:18px 16px;scroll-margin-top:64px}
 .song-head{display:flex;gap:14px;align-items:center;margin-bottom:14px}
 .no{flex:0 0 auto;min-width:52px;height:52px;border-radius:50%;border:1.5px solid var(--red);color:var(--red);display:grid;place-items:center;font-family:var(--serif);font-size:22px;font-weight:600}
@@ -118,6 +120,35 @@ footer{text-align:center;color:var(--ink-3);font-size:13px;padding:10px 0 40px}
 footer .motto{font-family:var(--serif);font-style:italic;font-size:16px;color:var(--ink-2);margin:0 0 4px}
 footer p{margin:2px 0}
 .empty{text-align:center;color:var(--ink-3);padding:40px 0}
+/* week blocks and ribbons */
+:root{ --navh:47px; --slate:#3d4a5c; --next-card:#f4f2ec; }
+@media (prefers-color-scheme: dark){ :root{ --slate:#5a6f8c; --next-card:#1f1c18; } .wk.this .ribbon{background:#8c1a1f} }
+.wk{margin:0 0 8px}
+.ribbon{position:sticky;top:var(--navh);z-index:15;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;
+  margin:0 -16px 16px;padding:9px 16px;color:#fff;background:var(--red);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.ribbon .rl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+.ribbon .rd{font-family:var(--serif);font-size:19px}
+.ribbon .rf{font-family:var(--serif);font-style:italic;font-size:15px;opacity:.9;flex-basis:100%;line-height:1.25}
+.ribbon .rs{font-size:11px;font-weight:600;letter-spacing:.04em;background:rgba(255,255,255,.2);border-radius:999px;padding:2px 9px;margin-left:auto;align-self:center}
+.wk.next{margin-top:34px}
+.roles{display:flex;flex-wrap:wrap;gap:2px 18px;margin:-8px 2px 16px;font-size:13px;color:var(--ink-3)}
+.roles b{font-weight:600;color:var(--ink-2);margin-left:4px}
+.wk.next .roles b{color:var(--slate)}
+
+.wk.next .ribbon{background:var(--slate)}
+.wk.next .song{background:var(--next-card);border-left:4px solid var(--slate)}
+.wk.next .part{color:var(--slate)}
+.wk.next .no{border-color:var(--slate);color:var(--slate)}
+nav.jump a.nx{display:none}
+nav.jump[data-wk="next"] a.tw{display:none}
+nav.jump[data-wk="next"] a.nx{display:inline-block}
+nav.jump a.nx b{color:var(--slate)}
+nav.jump a.nx.on{background:var(--slate);border-color:var(--slate);color:#fff}
+nav.jump a.nx.on b{color:#fff}
+@media (min-width:953px){ .ribbon{margin:0 0 16px;border-radius:10px} }
+.song{scroll-margin-top:150px}
+.wk.next{scroll-margin-top:var(--navh)}
+
 @media (max-width:600px){
   .song{padding:14px 12px;border-radius:14px}
   .paper{margin:0 -6px;padding:26px 4px 4px;border-radius:8px}
@@ -135,6 +166,7 @@ footer p{margin:2px 0}
   <img class="seal dk" src="icons/favicon-dark.png" alt="">
   <h1>Saturday English Mass</h1>
   <p class="date" id="date"></p>
+  <p class="feast" id="feast"></p>
   <div id="pick"></div>
   <div id="banner"></div>
 </header>
@@ -211,16 +243,44 @@ footer p{margin:2px 0}
   }
 
   /* ---------- page ---------- */
+  function ribbon(label, w, sub){
+    const [y,m,d] = w.date.split("-").map(Number);
+    const dm = new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-GB",{day:"numeric",month:"long",timeZone:"UTC"});
+    return '<div class="ribbon"><span class="rl">'+label+'</span><span class="rd">'+dm+'</span>'+
+      (sub?'<span class="rs">'+sub+'</span>':'')+(w.feast?'<span class="rf">'+esc(w.feast)+'</span>':'')+'</div>'+
+      ((w.presider||w.reader) ? '<p class="roles">'+
+        (w.presider?'<span>Presider <b>'+esc(w.presider)+'</b></span>':'')+
+        (w.reader?'<span>Reader <b>'+esc(w.reader)+'</b></span>':'')+'</p>' : '');
+  }
+  function cards(songs, prefix){
+    return PARTS.map(([k,l])=>{
+      const s = songs[k] && songs[k].title ? songs[k] : {title:"To be announced", tba:true}, id = ytId(s.youtube), st = ytStart(s.youtube, s.start);
+      const sheet = s.sheet || (s.no ? "sheets/"+s.no+".png" : "");
+      const meta = [s.no ? "ICLA No. "+s.no : "", s.composer||""].filter(Boolean).join(" · ");
+      const btn = id ? '<button class="playbtn" data-id="'+id+'" data-start="'+st+'" data-title="'+esc(s.title)+'" aria-label="Play '+esc(s.title)+'">'+ICON_PLAY+'</button>' : "";
+      const paper = sheet
+        ? '<div class="paper" data-src="'+sheet+'" data-title="'+esc((s.no?s.no+" · ":"")+s.title)+'" tabindex="0" role="button" aria-label="Enlarge sheet music">'+
+            '<img src="'+sheet+'" alt="Sheet music: '+esc(s.title)+'" loading="lazy"><span class="zoom-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</span></div>'
+        : '<div class="nosheet">'+(s.tba?"The song will be posted soon.":"Sheet music coming soon")+'</div>';
+      return '<section class="song'+(s.tba?' tba':'')+'" id="'+prefix+k+'">'+
+        '<div class="song-head">'+(s.no?'<div class="no">'+s.no+'</div>':'')+
+          '<div class="titles"><p class="part">'+l+'</p><h2>'+esc(s.title)+'</h2>'+(meta?'<p class="meta">'+esc(meta)+'</p>':'')+'</div>'+btn+'</div>'+
+        paper+'</section>';
+    }).join("");
+  }
+
+
   function render(date){
     const w = WEEKS.find(x=>x.date===date);
     stopAudio();
     if(!w){
-      $("date").textContent="";
+      $("date").textContent=""; $("feast").textContent="";
       $("main").innerHTML='<p class="empty">No songs have been posted yet.</p>';
       $("jump").hidden = true;
       return;
     }
     $("date").textContent = fmtDate(w.date);
+    $("feast").textContent = w.feast || "";
     $("banner").innerHTML = (w.sample ? '<p class="banner">Preview – songs for this Mass are not confirmed yet.</p>' : "")
                           + (w.note ? '<p class="note">'+esc(w.note)+'</p>' : "");
     if (WEEKS.length>1){
@@ -230,31 +290,23 @@ footer p{margin:2px 0}
     } else $("pick").innerHTML = "";
 
     const songs = w.songs||{};
-    $("jumpIn").innerHTML = PARTS.map(([k,l])=>{ const s = songs[k]||{};
-      return '<a href="#'+k+'" data-k="'+k+'">'+l+(s.no?'<b>'+s.no+'</b>':'')+'</a>'; }).join("");
+    const nx = WEEKS.filter(x=>x.date>w.date).sort((a,b)=>a.date.localeCompare(b.date))[0];
+    const pills = (sg, pre, cls) => PARTS.map(([k,l])=>{ const s = sg[k]||{};
+      return '<a href="#'+pre+k+'" data-k="'+pre+k+'" class="'+cls+'">'+l+(s.no?'<b>'+s.no+'</b>':'')+'</a>'; }).join("");
+    $("jumpIn").innerHTML = pills(songs, "", "tw") + (nx ? pills(nx.songs||{}, "next-", "nx") : "");
+    $("jump").dataset.wk = "this";
     $("jump").hidden = false;
 
-    $("main").innerHTML = PARTS.map(([k,l])=>{
-      const s = songs[k] && songs[k].title ? songs[k] : {title:"To be announced", tba:true}, id = ytId(s.youtube), st = ytStart(s.youtube, s.start);
-      const sheet = s.sheet || (s.no ? "sheets/"+s.no+".png" : "");
-      const meta = [s.no ? "ICLA No. "+s.no : "", s.composer||""].filter(Boolean).join(" · ");
-      const btn = id ? '<button class="playbtn" data-id="'+id+'" data-start="'+st+'" data-title="'+esc(s.title)+'" aria-label="Play '+esc(s.title)+'">'+ICON_PLAY+'</button>' : "";
-      const paper = sheet
-        ? '<div class="paper" data-src="'+sheet+'" data-title="'+esc((s.no?s.no+" · ":"")+s.title)+'" tabindex="0" role="button" aria-label="Enlarge sheet music">'+
-            '<img src="'+sheet+'" alt="Sheet music: '+esc(s.title)+'" loading="lazy"><span class="zoom-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</span></div>'
-        : '<div class="nosheet">'+(s.tba?"The song will be posted soon.":"Sheet music coming soon")+'</div>';
-      return '<section class="song'+(s.tba?' tba':'')+'" id="'+k+'">'+
-        '<div class="song-head">'+(s.no?'<div class="no">'+s.no+'</div>':'')+
-          '<div class="titles"><p class="part">'+l+'</p><h2>'+esc(s.title)+'</h2>'+(meta?'<p class="meta">'+esc(meta)+'</p>':'')+'</div>'+btn+'</div>'+
-        paper+'</section>';
-    }).join("");
+    $("main").innerHTML =
+      '<div class="wk this">'+ribbon("This Saturday", w)+cards(songs, "")+'</div>'+
+      (nx ? '<div class="wk next" id="next-week">'+ribbon("Next Saturday", nx, "Not this week")+cards(nx.songs||{}, "next-")+'</div>' : "");
 
     document.querySelectorAll(".playbtn").forEach(b=>b.onclick=()=>onPlayBtn(b));
     document.querySelectorAll(".paper").forEach(p=>{
       p.onclick=()=>openViewer(p.dataset.src,p.dataset.title);
       p.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openViewer(p.dataset.src,p.dataset.title);} };
     });
-    watchNav();
+    watchNav(); setNavH();
     preparePlayer();
   }
 
@@ -351,13 +403,15 @@ footer p{margin:2px 0}
   $("bSeek").oninput = ()=>{ seeking = true; $("bCur").textContent = fmt(+$("bSeek").value); };
   $("bSeek").onchange = ()=>{ if (player && ready) player.seekTo(+$("bSeek").value, true); seeking = false; };
 
+  function setNavH(){ const n=$("jump"); if(n && !n.hidden) document.documentElement.style.setProperty("--navh", n.getBoundingClientRect().height+"px"); }
+  window.addEventListener("resize", setNavH);
   /* ---------- jump bar highlight ---------- */
   let obs;
   function watchNav(){
     if (obs) obs.disconnect();
     if (!("IntersectionObserver" in window)) return;
     obs = new IntersectionObserver(es=>es.forEach(e=>{
-      if(e.isIntersecting) document.querySelectorAll("#jumpIn a").forEach(a=>a.classList.toggle("on",a.dataset.k===e.target.id));
+      if(e.isIntersecting) { const k = e.target.id; $("jump").dataset.wk = k.startsWith("next-") ? "next" : "this"; document.querySelectorAll("#jumpIn a").forEach(a=>a.classList.toggle("on",a.dataset.k===k)); }
     }),{rootMargin:"-45% 0px -50% 0px"});
     document.querySelectorAll(".song").forEach(s=>obs.observe(s));
   }
@@ -382,6 +436,11 @@ footer p{margin:2px 0}
   window.addEventListener("popstate",()=>closeViewer(true));
   document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeViewer(false); });
 
+  window.addEventListener("hashchange",()=>{
+    const h = decodeURIComponent(location.hash.slice(1));
+    if (WEEKS.some(w=>w.date===h)){ render(h); window.scrollTo(0,0); }
+    else if (!h){ render(pickDefault()); window.scrollTo(0,0); }
+  });
   render(pickDefault());
 })();
 </script>
