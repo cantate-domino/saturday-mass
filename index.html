@@ -76,9 +76,11 @@ main{padding:18px 0 8px}
 .playbtn:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 
 /* sheet */
-.paper{background:var(--paper);border-radius:10px;border:1px solid var(--line);padding:8px;cursor:zoom-in;position:relative}
+.paper{background:var(--paper);border-radius:10px;border:1px solid var(--line);padding:28px 8px 8px;cursor:zoom-in;position:relative}
 .paper img{display:block;width:100%;height:auto}
-.zoom-hint{position:absolute;right:10px;bottom:10px;font-size:12px;background:rgba(42,36,32,.75);color:#fff;border-radius:999px;padding:3px 10px;pointer-events:none}
+.zoom-hint{position:absolute;right:6px;top:5px;display:flex;align-items:center;gap:4px;font-size:11px;line-height:1;background:rgba(42,36,32,.32);color:#fff;border-radius:999px;padding:4px 8px;pointer-events:none;opacity:.7;transition:opacity .2s}
+.zoom-hint svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.2}
+.paper:hover .zoom-hint{opacity:1}
 .song.tba h2{color:var(--ink-3);font-style:italic}
 .nosheet{border:1px dashed var(--line);border-radius:10px;padding:24px;text-align:center;color:var(--ink-3)}
 
@@ -118,7 +120,7 @@ footer p{margin:2px 0}
 .empty{text-align:center;color:var(--ink-3);padding:40px 0}
 @media (max-width:600px){
   .song{padding:14px 12px;border-radius:14px}
-  .paper{margin:0 -6px;padding:4px;border-radius:8px}
+  .paper{margin:0 -6px;padding:26px 4px 4px;border-radius:8px}
   .no{min-width:44px;height:44px;font-size:19px}
   .playbtn{width:46px;height:46px}
   .song-head{gap:10px}
@@ -239,7 +241,7 @@ footer p{margin:2px 0}
       const btn = id ? '<button class="playbtn" data-id="'+id+'" data-start="'+st+'" data-title="'+esc(s.title)+'" aria-label="Play '+esc(s.title)+'">'+ICON_PLAY+'</button>' : "";
       const paper = sheet
         ? '<div class="paper" data-src="'+sheet+'" data-title="'+esc((s.no?s.no+" · ":"")+s.title)+'" tabindex="0" role="button" aria-label="Enlarge sheet music">'+
-            '<img src="'+sheet+'" alt="Sheet music: '+esc(s.title)+'" loading="lazy"><span class="zoom-hint">Tap to enlarge</span></div>'
+            '<img src="'+sheet+'" alt="Sheet music: '+esc(s.title)+'" loading="lazy"><span class="zoom-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</span></div>'
         : '<div class="nosheet">'+(s.tba?"The song will be posted soon.":"Sheet music coming soon")+'</div>';
       return '<section class="song'+(s.tba?' tba':'')+'" id="'+k+'">'+
         '<div class="song-head">'+(s.no?'<div class="no">'+s.no+'</div>':'')+
