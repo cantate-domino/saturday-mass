@@ -10,7 +10,7 @@
    A song left as {} shows "To be announced".
 */
 window.SITE = {
-  updated: "09 Oct 2026, 10:11 (UTC+7)"
+  updated: "09 Oct 2026, 15:22 (UTC+7)"
 };
 
 window.WEEKS = [

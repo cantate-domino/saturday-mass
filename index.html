@@ -240,12 +240,14 @@ nav.jump a.later.on b{color:#fff}
   }
 
   /* ---------- page ---------- */
+  // Presider / reader names: temporarily hidden (09/10). Set to true to show them again; the names stay in data.js.
+  const SHOW_NAMES = false;
   function ribbon(label, w, sub){
     const [y,m,d] = w.date.split("-").map(Number);
     const dm = new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-GB",{day:"numeric",month:"long",timeZone:"UTC"});
     return '<div class="ribbon"><span class="rl">'+label+'</span><span class="rd">'+dm+'</span>'+
       (sub?'<span class="rs">'+sub+'</span>':'')+(w.feast?'<span class="rf">'+esc(w.feast)+'</span>':'')+'</div>'+
-      ((w.presider||w.reader) ? '<p class="roles">'+
+      (SHOW_NAMES && (w.presider||w.reader) ? '<p class="roles">'+
         (w.presider?'<span>Presider <b>'+esc(w.presider)+'</b></span>':'')+
         (w.reader?'<span>Reader <b>'+esc(w.reader)+'</b></span>':'')+'</p>' : '');
   }
