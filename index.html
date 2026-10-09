@@ -231,8 +231,9 @@ nav.jump a.nx.on b{color:#fff}
   }
   function ytStart(url, start){
     if (start) return +start;
-    const m = String(url||"").match(/[?&]t=(\d+)/);
-    return m ? +m[1] : 0;
+    // accepts ?t=75, ?t=75s, ?t=1m15s, &start=75
+    const m = String(url||"").match(/[?&](?:t|start)=(?:(\d+)h)?(?:(\d+)m)?(\d+)?s?(?:&|$)/);
+    return m ? (+(m[1]||0))*3600 + (+(m[2]||0))*60 + (+(m[3]||0)) : 0;
   }
   function pickDefault(){
     const h = decodeURIComponent(location.hash.slice(1));

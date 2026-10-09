@@ -35,7 +35,7 @@ for p in parts:
     canvas.paste(p.crop((x0, 0, x1, p.height)), (0, y)); y += p.height + gap
 # blank the PDF song number (the community's printed book is numbered differently)
 from PIL import ImageDraw
-ImageDraw.Draw(canvas).rectangle((0, 0, int(dpi*0.82), int(dpi*0.54)), fill=255)
+ImageDraw.Draw(canvas).rectangle((0, 0, int(dpi*0.82)+20, int(dpi*0.54)), fill=255)
 canvas = canvas.quantize(8, dither=Image.Dither.NONE)
 canvas.save(out, optimize=True)
 print(out, canvas.size, "pages", a["page"], "->", b["page"], "|", a["title"])
