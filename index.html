@@ -121,8 +121,8 @@ footer .motto{font-family:var(--serif);font-style:italic;font-size:16px;color:va
 footer p{margin:2px 0}
 .empty{text-align:center;color:var(--ink-3);padding:40px 0}
 /* week blocks and ribbons */
-:root{ --navh:47px; --slate:#3d4a5c; --next-card:#f4f2ec; }
-@media (prefers-color-scheme: dark){ :root{ --slate:#5a6f8c; --next-card:#1f1c18; } .wk.this .ribbon{background:#8c1a1f} }
+:root{ --navh:47px; --slate:#3d4a5c; --next-card:#f4f2ec; --wk1:#3d4a5c; --wk2:#2f5d50; --wk3:#5b3a5e; --wk4:#7a5a1f; }
+@media (prefers-color-scheme: dark){ :root{ --slate:#5a6f8c; --next-card:#1f1c18; --wk1:#5a6f8c; --wk2:#4a8573; --wk3:#86608a; --wk4:#a07d3c; } .wk.this .ribbon{background:#8c1a1f} }
 .wk{margin:0 0 8px}
 .ribbon{position:sticky;top:var(--navh);z-index:15;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;
   margin:0 -16px 16px;padding:9px 16px;color:#fff;background:var(--red);box-shadow:0 2px 8px rgba(0,0,0,.12)}
@@ -130,24 +130,20 @@ footer p{margin:2px 0}
 .ribbon .rd{font-family:var(--serif);font-size:19px}
 .ribbon .rf{font-family:var(--serif);font-style:italic;font-size:15px;opacity:.9;flex-basis:100%;line-height:1.25}
 .ribbon .rs{font-size:11px;font-weight:600;letter-spacing:.04em;background:rgba(255,255,255,.2);border-radius:999px;padding:2px 9px;margin-left:auto;align-self:center}
-.wk.next{margin-top:34px}
 .roles{display:flex;flex-wrap:wrap;gap:2px 18px;margin:-8px 2px 16px;font-size:13px;color:var(--ink-3)}
 .roles b{font-weight:600;color:var(--ink-2);margin-left:4px}
-.wk.next .roles b{color:var(--slate)}
-
-.wk.next .ribbon{background:var(--slate)}
-.wk.next .song{background:var(--next-card);border-left:4px solid var(--slate)}
-.wk.next .part{color:var(--slate)}
-.wk.next .no{border-color:var(--slate);color:var(--slate)}
-nav.jump a.nx{display:none}
-nav.jump[data-wk="next"] a.tw{display:none}
-nav.jump[data-wk="next"] a.nx{display:inline-block}
-nav.jump a.nx b{color:var(--slate)}
-nav.jump a.nx.on{background:var(--slate);border-color:var(--slate);color:#fff}
-nav.jump a.nx.on b{color:#fff}
-@media (min-width:953px){ .ribbon{margin:0 0 16px;border-radius:10px} }
-.song{scroll-margin-top:150px}
-.wk.next{scroll-margin-top:var(--navh)}
+.wk.later{margin-top:34px;scroll-margin-top:var(--navh)}
+.wk.later .roles b{color:var(--wk)}
+.wk.later .ribbon{background:var(--wk)}
+.wk.later .song{background:var(--next-card);border-left:4px solid var(--wk)}
+.wk.later .part{color:var(--wk)}
+.wk.later .no{border-color:var(--wk);color:var(--wk)}
+nav.jump a[data-w]{display:none}
+nav.jump[data-wk="0"] a[data-w="0"],nav.jump[data-wk="1"] a[data-w="1"],nav.jump[data-wk="2"] a[data-w="2"],
+nav.jump[data-wk="3"] a[data-w="3"],nav.jump[data-wk="4"] a[data-w="4"],nav.jump[data-wk="5"] a[data-w="5"]{display:inline-block}
+nav.jump a.later b{color:var(--wk)}
+nav.jump a.later.on{background:var(--wk);border-color:var(--wk);color:#fff}
+nav.jump a.later.on b{color:#fff}
 
 @media (max-width:600px){
   .song{padding:14px 12px;border-radius:14px}
@@ -291,16 +287,20 @@ nav.jump a.nx.on b{color:#fff}
     } else $("pick").innerHTML = "";
 
     const songs = w.songs||{};
-    const nx = WEEKS.filter(x=>x.date>w.date).sort((a,b)=>a.date.localeCompare(b.date))[0];
-    const pills = (sg, pre, cls) => PARTS.map(([k,l])=>{ const s = sg[k]||{};
-      return '<a href="#'+pre+k+'" data-k="'+pre+k+'" class="'+cls+'">'+l+(s.no?'<b>'+s.no+'</b>':'')+'</a>'; }).join("");
-    $("jumpIn").innerHTML = pills(songs, "", "tw") + (nx ? pills(nx.songs||{}, "next-", "nx") : "");
-    $("jump").dataset.wk = "this";
+    // this week + every later week already prepared, each with its own ribbon colour
+    const later = WEEKS.filter(x=>x.date>w.date).sort((a,b)=>a.date.localeCompare(b.date));
+    const all = [w].concat(later);
+    const pre = i => i===0 ? "" : "w"+i+"-";
+    const pills = (sg, p, i) => PARTS.map(([k,l])=>{ const s = sg[k]||{};
+      return '<a href="#'+p+k+'" data-k="'+p+k+'" data-w="'+i+'" class="'+(i?'later':'')+'"'+(i?' style="--wk:var(--wk'+Math.min(i,4)+')"':'')+'>'+l+(s.no?'<b>'+s.no+'</b>':'')+'</a>'; }).join("");
+    $("jumpIn").innerHTML = all.map((x,i)=>pills(x.songs||{}, pre(i), i)).join("");
+    $("jump").dataset.wk = "0";
     $("jump").hidden = false;
-
-    $("main").innerHTML =
-      '<div class="wk this">'+ribbon("This Saturday", w)+cards(songs, "")+'</div>'+
-      (nx ? '<div class="wk next" id="next-week">'+ribbon("Next Saturday", nx, "Not this week")+cards(nx.songs||{}, "next-")+'</div>' : "");
+    const label = i => i===0 ? "This Saturday" : i===1 ? "Next Saturday" : "Saturday";
+    const sub = i => i===0 ? "" : i===1 ? "Not this week" : "In "+i+" weeks";
+    $("main").innerHTML = all.map((x,i)=>
+      '<div class="wk '+(i?'later':'this')+'" id="'+(i?'week-'+i:'this-week')+'" data-w="'+i+'"'+(i?' style="--wk:var(--wk'+Math.min(i,4)+')"':'')+'>'+
+        ribbon(label(i), x, sub(i))+cards(x.songs||{}, pre(i))+'</div>').join("");
 
     document.querySelectorAll(".playbtn").forEach(b=>b.onclick=()=>onPlayBtn(b));
     document.querySelectorAll(".paper").forEach(p=>{
@@ -412,7 +412,7 @@ nav.jump a.nx.on b{color:#fff}
     if (obs) obs.disconnect();
     if (!("IntersectionObserver" in window)) return;
     obs = new IntersectionObserver(es=>es.forEach(e=>{
-      if(e.isIntersecting) { const k = e.target.id; $("jump").dataset.wk = k.startsWith("next-") ? "next" : "this"; document.querySelectorAll("#jumpIn a").forEach(a=>a.classList.toggle("on",a.dataset.k===k)); }
+      if(e.isIntersecting) { const k = e.target.id, m = k.match(/^w(\d+)-/); $("jump").dataset.wk = m ? m[1] : "0"; document.querySelectorAll("#jumpIn a").forEach(a=>a.classList.toggle("on",a.dataset.k===k)); }
     }),{rootMargin:"-45% 0px -50% 0px"});
     document.querySelectorAll(".song").forEach(s=>obs.observe(s));
   }
