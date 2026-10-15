@@ -1,13 +1,22 @@
 """ipa_auto.py SHEET.png BANDS_JSON OUT.png [--dry]
-Reads the lyric words from the sheet itself (tesseract OCR), looks up each word in CMUdict,
-converts to American IPA (stress marks + syllable dots) and writes IPA + linking marks (consonant -> vowel)
-under every lyric line. Nothing is typed in by hand except a few overrides for words missing from CMUdict.
+Reads the lyric words from the sheet itself (tesseract OCR), looks each word up in the OXFORD (OALD, British English)
+table kept locally (--oxford DIR containing oxford_bre.py + oxford_bre_extra.py) and writes the IPA + linking marks
+under every lyric line. CMUdict is used only to help glue OCR pieces into words, never for pronunciation.
+Oxford rules: ː long marks, /e/, ɒ əʊ eə ɪə ʊə, syllabic consonants, no syllable dots, (r) shown as OALD writes it;
+strong forms of function words; only I a my me be we so go to he no are left unprinted; the = ðə (ði before a vowel);
+‿ only where a word ends in a consonant sound or linking (r) and the next word begins with a vowel sound.
 BANDS_JSON = list of [ytop, ybottom] bands of the lyric rows (OCR 'top' values)."""
 import csv, json, re, subprocess, sys, cmudict
 from PIL import Image, ImageDraw, ImageFont
 
 src, bands_s, out = sys.argv[1:4]
 dry = '--dry' in sys.argv
+OXDIR = sys.argv[sys.argv.index('--oxford') + 1] if '--oxford' in sys.argv else '.'
+sys.path.insert(0, OXDIR)
+from oxford_bre import OX
+from oxford_bre_extra import OX2
+OXF = {**OX, **OX2}
+SKIP = {'i', 'a', 'my', 'me', 'be', 'we', 'so', 'go', 'to', 'he', 'no'}
 SUBS = json.loads(sys.argv[sys.argv.index('--subs') + 1]) if '--subs' in sys.argv else []
 bands = json.loads(bands_s)
 D = cmudict.dict()
@@ -61,25 +70,10 @@ def syllabify(ph):
 
 def ipa_of(word):
     lw = re.sub(r"[^a-z']", '', word.lower())
-    if lw in WEAK: return WEAK[lw], None
-    if lw in OVRIPA: return OVRIPA[lw], phones(word)
-    ph = phones(word)
-    if ph is None: return None, None
-    syl = syllabify(ph)
-    outs = []
-    for st, seg in syl:
-        s = ''
-        for p in seg:
-            b = re.sub(r'\d', '', p)
-            if p[-1:].isdigit() or b in VOW and p[-1:].isdigit():
-                if b == 'AH': s += 'ʌ' if p[-1] in '12' else 'ə'
-                elif b == 'ER': s += 'ɝ' if p[-1] in '12' else 'ɚ'
-                else: s += VOW[b]
-            else:
-                s += CON[b]
-        mark = 'ˈ' if st == 1 and len(syl) > 1 else ('ˌ' if st == 2 and len(syl) > 2 else '')
-        outs.append(mark + s)
-    return '.'.join(outs), ph
+    if lw == 'the': return 'ðə', phones(word)
+    if lw == 'a': return 'ə', None
+    if lw in OXF: return OXF[lw], None
+    return None, None
 
 
 # ---------- OCR ----------
@@ -161,13 +155,18 @@ for words in lines:
         L.append((w, ipa, ph))
     res.append(L)
 
-VOWELS = set(VOW)
-def starts_vowel(ph, q):
-    if ph: return re.sub(r'\d', '', ph[0]) in VOWELS
-    return q[0] in 'aeiou'
-def ends_cons(ph, q):
-    if ph: return re.sub(r'\d', '', ph[-1]) not in VOWELS
-    return False
+VCH = set('aeiouæɑɒɔəɛɜɪʊʌ')
+def first_sound_vowel(ipa):
+    t = ipa.lstrip('ˈˌ(')
+    return bool(t) and t[0] in VCH
+def last_sound_cons(ipa):
+    if ipa.endswith('(r)'): return True
+    t = ipa.replace('ː', '')
+    return bool(t) and t[-1] not in VCH
+for L in res:
+    for k, (w, ipa, ph) in enumerate(L):
+        if w['q'].lower() == 'the' and k + 1 < len(L) and first_sound_vowel(L[k + 1][1]): L[k] = (w, 'ði', ph)
+def shown(w): return w['q'].lower() not in SKIP
 
 for n, L in enumerate(res):
     s = ' | '.join(f"{w['q']}[{ipa}]" for w, ipa, ph in L)
@@ -192,10 +191,10 @@ for L, c, o in zip(res, cuts, offs):
     base_y = c + o
     for k, (w, ipa, ph) in enumerate(L):
         cx = (w['x'] + w['x2']) / 2; tw = d.textlength(ipa, font=f)
-        d.text((cx - tw / 2, base_y + 3), ipa, font=f, fill=RED)
+        if shown(w): d.text((cx - tw / 2, base_y + 3), ipa, font=f, fill=RED)
         if k + 1 < len(L):
-            w2, _, ph2 = L[k + 1]
-            if ends_cons(ph, w['q']) and starts_vowel(ph2, w2['q']):
+            w2, ipa2, ph2 = L[k + 1]
+            if last_sound_cons(ipa) and ipa != '?' and first_sound_vowel(ipa2):
                 cx2 = (w['x2'] + w2['x']) / 2
                 d.text((cx2 - 7, c - 19 + o), '‿', font=fl, fill=BLUE); nlinks += 1
 new = new.quantize(32, dither=Image.Dither.NONE)
