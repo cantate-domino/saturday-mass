@@ -121,9 +121,9 @@ footer .motto{font-family:var(--serif);font-style:italic;font-size:16px;color:va
 footer p{margin:2px 0}
 .empty{text-align:center;color:var(--ink-3);padding:40px 0}
 /* week blocks and ribbons */
-:root{ --navh:47px; --slate:#3d4a5c; --next-card:#f4f2ec; --wk1:#3d4a5c; --wk2:#2f5d50; --wk3:#5b3a5e; --wk4:#7a5a1f; }
-@media (prefers-color-scheme: dark){ :root{ --slate:#5a6f8c; --next-card:#1f1c18; --wk1:#5a6f8c; --wk2:#4a8573; --wk3:#86608a; --wk4:#a07d3c; } .wk.this .ribbon{background:#8c1a1f} }
-.wk{margin:0 0 8px}
+:root{ --navh:47px; --slate:#3d4a5c; --next-card:#f4f2ec; --wk1:#3d4a5c; --wk2:#2f5d50; --wk3:#5b3a5e; --wk4:#7a5a1f; --past:#6b665c; }
+@media (prefers-color-scheme: dark){ :root{ --slate:#5a6f8c; --next-card:#1f1c18; --wk1:#5a6f8c; --wk2:#4a8573; --wk3:#86608a; --wk4:#a07d3c; --past:#7d786d; } .wk.this .ribbon{background:#8c1a1f} }
+.wk{margin:0 0 8px;scroll-margin-top:var(--navh)}
 .ribbon{position:sticky;top:var(--navh);z-index:15;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;
   margin:0 -16px 16px;padding:9px 16px;color:#fff;background:var(--red);box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .ribbon .rl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
@@ -232,22 +232,18 @@ nav.jump a.later.on b{color:#fff}
     return m ? (+(m[1]||0))*3600 + (+(m[2]||0))*60 + (+(m[3]||0)) : 0;
   }
   function pickDefault(){
-    const h = decodeURIComponent(location.hash.slice(1));
-    if (WEEKS.some(w=>w.date===h)) return h;
     const t = todayVN();
     const up = WEEKS.filter(w=>w.date>=t).sort((a,b)=>a.date.localeCompare(b.date));
     return (up[0]||WEEKS[0]||{}).date;
   }
 
   /* ---------- page ---------- */
-  // Presider / reader names: temporarily hidden (09/10). Set to true to show them again; the names stay in data.js.
-  const SHOW_NAMES = false;
   function ribbon(label, w, sub){
     const [y,m,d] = w.date.split("-").map(Number);
     const dm = new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-GB",{day:"numeric",month:"long",timeZone:"UTC"});
     return '<div class="ribbon"><span class="rl">'+label+'</span><span class="rd">'+dm+'</span>'+
       (sub?'<span class="rs">'+sub+'</span>':'')+(w.feast?'<span class="rf">'+esc(w.feast)+'</span>':'')+'</div>'+
-      (SHOW_NAMES && (w.presider||w.reader) ? '<p class="roles">'+
+      ((w.presider||w.reader) ? '<p class="roles">'+
         (w.presider?'<span>Presider <b>'+esc(w.presider)+'</b></span>':'')+
         (w.reader?'<span>Reader <b>'+esc(w.reader)+'</b></span>':'')+'</p>' : '');
   }
@@ -269,7 +265,16 @@ nav.jump a.later.on b{color:#fff}
   }
 
 
-  function render(date){
+  function weekEl(date){ return document.querySelector('.wk[data-date="'+date+'"]'); }
+  function goWeek(date, smooth){
+    const el = weekEl(date); if (!el) return;
+    if (el.classList.contains("this")) window.scrollTo({top:0, behavior:smooth?"smooth":"auto"});
+    else el.scrollIntoView({behavior:smooth?"smooth":"auto", block:"start"});
+  }
+
+  function render(){
+    // "this week" is always the upcoming Saturday; the Week menu only scrolls to a block
+    const date = pickDefault();
     const w = WEEKS.find(x=>x.date===date);
     stopAudio();
     if(!w){
@@ -282,27 +287,32 @@ nav.jump a.later.on b{color:#fff}
     $("feast").textContent = w.feast || "";
     $("banner").innerHTML = (w.sample ? '<p class="banner">Preview – songs for this Mass are not confirmed yet.</p>' : "")
                           + (w.note ? '<p class="note">'+esc(w.note)+'</p>' : "");
+    // order: this week, later weeks (soonest first), then past weeks (most recent first)
+    const later = WEEKS.filter(x=>x.date>w.date).sort((a,b)=>a.date.localeCompare(b.date));
+    const past  = WEEKS.filter(x=>x.date<w.date).sort((a,b)=>b.date.localeCompare(a.date));
+    const all = [w].concat(later, past);
     if (WEEKS.length>1){
       $("pick").innerHTML = '<label class="weekpick">Week <select id="wsel">'+
         WEEKS.map(x=>'<option value="'+x.date+'"'+(x.date===date?" selected":"")+'>'+fmtDate(x.date)+'</option>').join("")+'</select></label>';
-      $("wsel").onchange = e => { history.replaceState(null,"","#"+e.target.value); render(e.target.value); window.scrollTo(0,0); };
+      $("wsel").onchange = e => { history.replaceState(null,"","#"+e.target.value); goWeek(e.target.value, true); };
     } else $("pick").innerHTML = "";
 
-    const songs = w.songs||{};
-    // this week + every later week already prepared, each with its own ribbon colour
-    const later = WEEKS.filter(x=>x.date>w.date).sort((a,b)=>a.date.localeCompare(b.date));
-    const all = [w].concat(later);
+    const nL = later.length;
     const pre = i => i===0 ? "" : "w"+i+"-";
     const pills = (sg, p, i) => PARTS.map(([k,l])=>{ const s = sg[k]||{};
       return '<a href="#'+p+k+'" data-k="'+p+k+'" data-w="'+i+'" class="'+(i?'later':'')+'"'+(i?' style="--wk:var(--wk'+Math.min(i,4)+')"':'')+'>'+l+(s.no?'<b>'+s.no+'</b>':'')+'</a>'; }).join("");
-    $("jumpIn").innerHTML = all.map((x,i)=>pills(x.songs||{}, pre(i), i)).join("");
+    // jump bar: this week + upcoming weeks only
+    $("jumpIn").innerHTML = all.slice(0,nL+1).map((x,i)=>pills(x.songs||{}, pre(i), i)).join("");
     $("jump").dataset.wk = "0";
     $("jump").hidden = false;
-    const label = i => i===0 ? "This Saturday" : i===1 ? "Next Saturday" : "Saturday";
-    const sub = i => i===0 ? "" : i===1 ? "Not this week" : "In "+i+" weeks";
-    $("main").innerHTML = all.map((x,i)=>
-      '<div class="wk '+(i?'later':'this')+'" id="'+(i?'week-'+i:'this-week')+'" data-w="'+i+'"'+(i?' style="--wk:var(--wk'+Math.min(i,4)+')"':'')+'>'+
-        ribbon(label(i), x, sub(i))+cards(x.songs||{}, pre(i))+'</div>').join("");
+    const label = i => i===0 ? "This Saturday" : i<=nL ? (i===1 ? "Next Saturday" : "Saturday") : "Saturday";
+    const sub = i => i===0 ? "" : i>nL ? "Past" : i===1 ? "Not this week" : "In "+i+" weeks";
+    $("main").innerHTML = all.map((x,i)=>{
+      const isPast = i>nL;
+      const col = isPast ? 'var(--past)' : 'var(--wk'+Math.min(i,4)+')';
+      return '<div class="wk '+(i?'later':'this')+(isPast?' past':'')+'" id="'+(i?'week-'+i:'this-week')+'" data-w="'+i+'" data-date="'+x.date+'"'+(i?' style="--wk:'+col+'"':'')+'>'+
+        ribbon(label(i), x, sub(i))+cards(x.songs||{}, pre(i))+'</div>';
+    }).join("");
 
     document.querySelectorAll(".playbtn").forEach(b=>b.onclick=()=>onPlayBtn(b));
     document.querySelectorAll(".paper").forEach(p=>{
@@ -414,7 +424,8 @@ nav.jump a.later.on b{color:#fff}
     if (obs) obs.disconnect();
     if (!("IntersectionObserver" in window)) return;
     obs = new IntersectionObserver(es=>es.forEach(e=>{
-      if(e.isIntersecting) { const k = e.target.id, m = k.match(/^w(\d+)-/); $("jump").dataset.wk = m ? m[1] : "0"; document.querySelectorAll("#jumpIn a").forEach(a=>a.classList.toggle("on",a.dataset.k===k)); }
+      if(e.isIntersecting) { const k = e.target.id, m = k.match(/^w(\d+)-/); $("jump").dataset.wk = m ? m[1] : "0";
+        const wk = e.target.closest(".wk"), ws = $("wsel"); if (wk && ws && ws.value!==wk.dataset.date) ws.value = wk.dataset.date; document.querySelectorAll("#jumpIn a").forEach(a=>a.classList.toggle("on",a.dataset.k===k)); }
     }),{rootMargin:"-45% 0px -50% 0px"});
     document.querySelectorAll(".song").forEach(s=>obs.observe(s));
   }
@@ -441,10 +452,11 @@ nav.jump a.later.on b{color:#fff}
 
   window.addEventListener("hashchange",()=>{
     const h = decodeURIComponent(location.hash.slice(1));
-    if (WEEKS.some(w=>w.date===h)){ render(h); window.scrollTo(0,0); }
-    else if (!h){ render(pickDefault()); window.scrollTo(0,0); }
+    if (WEEKS.some(w=>w.date===h)){ const ws=$("wsel"); if(ws) ws.value=h; goWeek(h,true); }
+    else if (!h) window.scrollTo(0,0);
   });
-  render(pickDefault());
+  render();
+  { const h = decodeURIComponent(location.hash.slice(1)); if (WEEKS.some(w=>w.date===h)) { const ws=$("wsel"); if(ws) ws.value=h; goWeek(h,false); } }
 })();
 </script>
 </body>
