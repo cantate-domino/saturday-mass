@@ -10,10 +10,31 @@
    A song left as {} shows "To be announced".
 */
 window.SITE = {
-  updated: "09 Oct 2026, 15:22 (UTC+7)"
+  updated: "15 Oct 2026, 16:46 (UTC+7)"
 };
 
 window.WEEKS = [
+  {
+    date: "2026-11-07",
+    note: "",
+    songs: {
+      entrance:    { no: 141, title: "Shine, Jesus, Shine", composer: "Graham Kendrick", youtube: "https://youtu.be/AvMeTWAiUz8", start: 34, sheet: "sheets/shine-jesus-shine-ipa.png" },
+      offertory:   { no: 192, title: "Seed, Scattered and Sown", composer: "Dan Feiten", youtube: "https://youtu.be/b3wm1ZEXaiM", start: 13, sheet: "sheets/seed-scattered-and-sown-ipa.png" },
+      recessional: {}
+    }
+  },
+  {
+    date: "2026-10-31",
+    feast: "Saturday of the Thirtieth Week in Ordinary Time",
+    presider: "fr. Công Liêm",
+    reader: "fr. Khải Hoàn",
+    note: "",
+    songs: {
+      entrance:    { no: 129, title: "All the Earth", composer: "Lucien Deiss, C.S.Sp.", youtube: "https://youtu.be/j8IqqqajEbU", start: 8, sheet: "sheets/all-the-earth-ipa.png" },
+      offertory:   { no: 173, title: "Christians, Let Us Love One Another", composer: "Tune: Picardy", youtube: "https://www.youtube.com/watch?v=zGnJ1C-zYCo", start: 17, sheet: "sheets/christians-let-us-love-ipa.png" },
+      recessional: { no: 213, title: "Sing of Mary, Pure and Lowly", composer: "Joshua Leavitt", youtube: "https://youtu.be/dwA-fimg5W4", start: 10, sheet: "sheets/sing-of-mary-pure-and-lowly-ipa.png" }
+    }
+  },
   {
     date: "2026-10-24",
     feast: "Saturday Memorial of the Blessed Virgin Mary",
