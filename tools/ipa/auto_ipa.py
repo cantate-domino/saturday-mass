@@ -25,9 +25,9 @@ WEAK = {'of': 'əv', 'the': 'ðə', 'a': 'ə', 'and': 'ænd', 'to': 'tu', 'is': 
         'from': 'frʌm', 'that': 'ðæt', 'in': 'ɪn', 'by': 'baɪ', 'you': 'ju', 'on': 'ɑn'}
 # CMUdict gaps (pieces are pronounced by hand once; everything else comes from the dictionary)
 OVR = {'reechoes': ['R','IY0','EH1','K','OW0','Z'], 'courtyards': ['K','AO1','R','T','Y','AA2','R','D','Z'],
-       'undefiled': ['AH2','N','D','IH0','F','AY1','L','D'], 'gladness': ['G','L','AE1','D','N','AH0','S']}
+       'undefiled': ['AH2','N','D','IH0','F','AY1','L','D'], 'gladness': ['G','L','AE1','D','N','AH0','S'], 'forevermore': ['F','ER0','EH1','V','ER0','M','AO2','R']}
 OVRIPA = {'enduring': 'ɪn.ˈdʊ.rɪŋ', 'blessed': 'ˈblɛ.sɪd', 'calvary': 'ˈkæl.və.ri', 'courtyards': 'ˈkɔrt.ˌjɑrdz'}
-STOP = {'is','are','we','the','and','of','for','our','his','her','he','by','at','as','it','so','you','who','my','me','us','all','no','go','do','to'}
+STOP = {'a','or','is','are','we','the','and','of','for','our','his','her','he','by','at','as','it','so','you','who','my','me','us','all','no','go','do','to'}
 
 
 def phones(word):
@@ -98,10 +98,12 @@ for (y0, y1) in bands:
     pieces = []
     for t in tk:
         for part in re.split(r'[-–—_]+', t['t']):
+            orig = part
             part = re.sub(r"^[\d.,]+", '', part)
             q = re.sub(r"[^A-Za-z']", '', part)
             if part.strip() in ('(0)', '(O)', '0'): q = 'O'
             if part.strip() == '|': q = 'I'
+            if re.fullmatch(r'\d\.[1lI|]', orig.strip()): q = 'I'
             if not q: continue
             n = len(re.split(r'[-–—_]+', t['t']))
             pieces.append(dict(q=q, x=t['x'], x2=t['x'] + t['w'], y=t['y'], b=t['y'] + t['h']))
@@ -113,7 +115,11 @@ for (y0, y1) in bands:
         if ok: keep.append(p)
     pieces = keep
     for (ln, old, new, nx, nx2) in SUBS:
-        if ln == len(lines):
+        if ln == len(lines) and old == '+':
+            pieces.append(dict(q=new, x=nx, x2=nx2, y=0, b=max(p['b'] for p in pieces)))
+    pieces.sort(key=lambda p: p['x'])
+    for (ln, old, new, nx, nx2) in SUBS:
+        if ln == len(lines) and old != '+':
             for p in pieces:
                 if p['q'] == old: p['q'] = new; p['x'] = nx or p['x']; p['x2'] = nx2 or p['x2']
         np_ = []
@@ -132,7 +138,7 @@ for (y0, y1) in bands:
         for j in range(min(len(pieces), i + 4), i + 1, -1):
             grp = pieces[i:j]
             if any(grp[k + 1]['x'] - grp[k]['x2'] > 110 for k in range(len(grp) - 1)): continue
-            if grp[0]['q'].lower() in STOP and len(grp) == 2 and ''.join(p['q'] for p in grp).lower() not in ('into','unto','without','became','ascends'): continue
+            if grp[0]['q'].lower() in STOP and len(grp) == 2 and ''.join(p['q'] for p in grp).lower() not in ('into','unto','without','became','ascends','forget','orphaned'): continue
             if ''.join(p['q'] for p in grp).lower() in ('littlechild',): continue
             if any(p['q'] == 'I' for p in grp[1:]): continue
             cat = ''.join(p['q'] for p in grp).lower()

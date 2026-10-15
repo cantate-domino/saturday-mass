@@ -10,7 +10,7 @@
    A song left as {} shows "To be announced".
 */
 window.SITE = {
-  updated: "15 Oct 2026, 16:46 (UTC+7)"
+  updated: "15 Oct 2026, 16:54 (UTC+7)"
 };
 
 window.WEEKS = [
@@ -20,7 +20,7 @@ window.WEEKS = [
     songs: {
       entrance:    { no: 141, title: "Shine, Jesus, Shine", composer: "Graham Kendrick", youtube: "https://youtu.be/AvMeTWAiUz8", start: 34, sheet: "sheets/shine-jesus-shine-ipa.png" },
       offertory:   { no: 192, title: "Seed, Scattered and Sown", composer: "Dan Feiten", youtube: "https://youtu.be/b3wm1ZEXaiM", start: 13, sheet: "sheets/seed-scattered-and-sown-ipa.png" },
-      recessional: {}
+      recessional: { no: 230, title: "Pray for the Departed Souls", composer: "", youtube: "https://youtu.be/Cu0sO8VOruc", start: 20, sheet: "sheets/for-the-departed-souls-ipa.png" }
     }
   },
   {
