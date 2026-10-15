@@ -130,10 +130,7 @@ footer p{margin:2px 0}
 .ribbon .rd{font-family:var(--serif);font-size:19px}
 .ribbon .rf{font-family:var(--serif);font-style:italic;font-size:15px;opacity:.9;flex-basis:100%;line-height:1.25}
 .ribbon .rs{font-size:11px;font-weight:600;letter-spacing:.04em;background:rgba(255,255,255,.2);border-radius:999px;padding:2px 9px;margin-left:auto;align-self:center}
-.roles{display:flex;flex-wrap:wrap;gap:2px 18px;margin:-8px 2px 16px;font-size:13px;color:var(--ink-3)}
-.roles b{font-weight:600;color:var(--ink-2);margin-left:4px}
 .wk.later{margin-top:34px;scroll-margin-top:var(--navh)}
-.wk.later .roles b{color:var(--wk)}
 .wk.later .ribbon{background:var(--wk)}
 .wk.later .song{background:var(--next-card);border-left:4px solid var(--wk)}
 .wk.later .part{color:var(--wk)}
@@ -242,10 +239,7 @@ nav.jump a.later.on b{color:#fff}
     const [y,m,d] = w.date.split("-").map(Number);
     const dm = new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-GB",{day:"numeric",month:"long",timeZone:"UTC"});
     return '<div class="ribbon"><span class="rl">'+label+'</span><span class="rd">'+dm+'</span>'+
-      (sub?'<span class="rs">'+sub+'</span>':'')+(w.feast?'<span class="rf">'+esc(w.feast)+'</span>':'')+'</div>'+
-      ((w.presider||w.reader) ? '<p class="roles">'+
-        (w.presider?'<span>Presider <b>'+esc(w.presider)+'</b></span>':'')+
-        (w.reader?'<span>Reader <b>'+esc(w.reader)+'</b></span>':'')+'</p>' : '');
+      (sub?'<span class="rs">'+sub+'</span>':'')+(w.feast?'<span class="rf">'+esc(w.feast)+'</span>':'')+'</div>';
   }
   function cards(songs, prefix){
     return PARTS.map(([k,l])=>{

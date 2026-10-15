@@ -6,7 +6,6 @@
              the round play button next to the title only appears when there is a link
    start   = optional start time in seconds
    feast   = optional celebration of the day, shown under the date
-   presider / reader = from the monthly liturgy duty roster (chủ tế / BĐ)
    A song left as {} shows "To be announced".
 */
 window.SITE = {
@@ -26,8 +25,6 @@ window.WEEKS = [
   {
     date: "2026-10-31",
     feast: "Saturday of the Thirtieth Week in Ordinary Time",
-    presider: "fr. Công Liêm",
-    reader: "fr. Khải Hoàn",
     note: "",
     songs: {
       entrance:    { no: 129, title: "All the Earth", composer: "Lucien Deiss, C.S.Sp.", youtube: "https://youtu.be/j8IqqqajEbU", start: 8, sheet: "sheets/all-the-earth-ipa.png" },
@@ -38,8 +35,6 @@ window.WEEKS = [
   {
     date: "2026-10-24",
     feast: "Saturday Memorial of the Blessed Virgin Mary",
-    presider: "fr. Khải Hoàn",
-    reader: "fr. Công Hàm",
     note: "",
     songs: {
       entrance:    { no: 135, title: "Greetings to Jerusalem", composer: "R. Reboud", youtube: "https://youtu.be/ISEmh1jEYH0", start: 13, sheet: "sheets/greetings-to-jerusalem-ipa.png" },
@@ -50,8 +45,6 @@ window.WEEKS = [
   {
     date: "2026-10-17",
     feast: "Saint Ignatius of Antioch, Bishop and Martyr",
-    presider: "fr. Công Hàm",
-    reader: "fr. Trần Hiệu",
     note: "",
     songs: {
       entrance:    { no: 106, title: "When I Survey the Wondrous Cross", composer: "Tune: Hamburg", youtube: "https://youtu.be/RuyypOiCVag", start: 17, sheet: "sheets/when-i-survey-the-wondrous-cross-ipa.png" },
@@ -61,8 +54,6 @@ window.WEEKS = [
   },
   {
     date: "2026-10-10",
-    presider: "fr. Trị An",
-    reader: "fr. Công Hàm",
     note: "",
     songs: {
       entrance:    { no: 127, title: "All the Ends of the Earth", composer: "Bob Dufford, S.J.", youtube: "https://youtu.be/WURSnRG-bkQ", sheet: "sheets/all-the-ends-of-the-earth-ipa.png" },
