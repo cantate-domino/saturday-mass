@@ -10,7 +10,7 @@
    A song left as {} shows "To be announced".
 */
 window.SITE = {
-  updated: "30 Oct 2026, 23:21 (UTC+7)"
+  updated: "30 Oct 2026, 23:41 (UTC+7)"
 };
 
 window.WEEKS = [
@@ -22,7 +22,7 @@ window.WEEKS = [
       entrance:    { no: 127, title: "All the Ends of the Earth", composer: "Bob Dufford, S.J.", youtube: "https://youtu.be/WURSnRG-bkQ", sheet: "sheets/all-the-ends-of-the-earth-ipa.png" },
       offertory:   { no: 192, title: "Seed, Scattered and Sown", composer: "Dan Feiten", youtube: "https://youtu.be/b3wm1ZEXaiM", start: 13, sheet: "sheets/seed-scattered-and-sown-ipa.png" },
       communion:   { no: 173, title: "Christians, Let Us Love One Another", composer: "Tune: Picardy", youtube: "https://www.youtube.com/watch?v=zGnJ1C-zYCo", start: 17, sheet: "sheets/christians-let-us-love-ipa.png" },
-      recessional: { no: 139, title: "Let Heaven Rejoice", composer: "Bob Dufford, S.J.", youtube: "https://www.youtube.com/watch?v=drn4GIEV4v8", sheet: "sheets/let-heaven-rejoice-ipa.png" }
+      recessional: { no: 226, title: "I Go My Merry Way", composer: "Sœur Sourire, O.P.", youtube: "https://www.youtube.com/watch?v=y1TvgMx5fX8", sheet: "sheets/i-go-my-merry-way-ipa.png" }
     }
   },
   {
