@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Saturday English Mass</title>
-<meta name="description" content="Songs for the Saturday English Mass: listen and follow the sheet music.">
+<title>English Mass · St. Joseph Convent</title>
+<meta name="description" content="Songs for the English Mass at St. Joseph Convent: listen and follow the sheet music.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="icons/favicon.png" media="(prefers-color-scheme: light)">
 <link rel="icon" href="icons/favicon-dark.png" media="(prefers-color-scheme: dark)">
@@ -40,6 +40,7 @@ header{text-align:center;padding:28px 0 14px}
 @media (prefers-color-scheme: dark){ .seal.lt{display:none} .seal.dk{display:block} }
 .house{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0}
 h1{font-family:var(--serif);font-weight:500;font-size:clamp(30px,6vw,44px);line-height:1.1;margin:6px 0 4px}
+.place{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 10px}
 .date{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--red);margin:0}
 .feast{font-family:var(--serif);font-size:18px;color:var(--ink-2);margin:2px 0 0}
 .feast:empty{display:none}
@@ -164,7 +165,8 @@ nav.jump a.later.on b{color:#fff}
 <header class="wrap">
   <img class="seal lt" src="icons/icon-192.png" alt="">
   <img class="seal dk" src="icons/favicon-dark.png" alt="">
-  <h1>Saturday English Mass</h1>
+  <h1>English Mass</h1>
+  <p class="place">St. Joseph Convent</p>
   <p class="date" id="date"></p>
   <p class="feast" id="feast"></p>
   <div id="pick"></div>
@@ -275,7 +277,7 @@ nav.jump a.later.on b{color:#fff}
   }
 
   function render(){
-    // "this week" is always the upcoming Saturday; the Week menu only scrolls to a block
+    // "this week" is always the next upcoming Mass (any weekday); the Week menu only scrolls to a block
     const date = pickDefault();
     const w = WEEKS.find(x=>x.date===date);
     stopAudio();
@@ -307,8 +309,11 @@ nav.jump a.later.on b{color:#fff}
     $("jumpIn").innerHTML = all.slice(0,nL+1).map((x,i)=>pills(x.songs||{}, pre(i), i)).join("");
     $("jump").dataset.wk = "0";
     $("jump").hidden = false;
-    const label = i => i===0 ? "This Saturday" : i<=nL ? (i===1 ? "Next Saturday" : "Saturday") : "Saturday";
-    const sub = i => i===0 ? "" : i>nL ? "Past" : i===1 ? "Not this week" : "In "+i+" weeks";
+    const wd = iso => { const [y,m,d] = iso.split("-").map(Number); return new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-GB",{weekday:"long",timeZone:"UTC"}); };
+    const label = i => { const n = wd(all[i].date); return i===0 ? "This "+n : (i===1 && nL ? "Next "+n : n); };
+    const days = iso => Math.round((Date.parse(iso+"T00:00:00Z") - Date.parse(todayVN()+"T00:00:00Z"))/864e5);
+    const sub = i => { if (i===0) return ""; if (i>nL) return "Past";
+      const n = days(all[i].date); return n<=1 ? "Tomorrow" : n<14 ? "In "+n+" days" : "In "+Math.round(n/7)+" weeks"; };
     $("main").innerHTML = all.map((x,i)=>{
       const isPast = i>nL;
       const col = isPast ? 'var(--past)' : 'var(--wk'+Math.min(i,4)+')';

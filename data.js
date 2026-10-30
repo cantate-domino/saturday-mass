@@ -1,5 +1,6 @@
-/* Saturday English Mass – song list
-   Newest week FIRST. Each week has three songs: entrance, offertory, recessional.
+/* English Mass · St. Joseph Convent – song list
+   Newest Mass FIRST (usually Saturday; any date works – the label follows the weekday).
+   Each Mass has three songs: entrance, offertory, recessional.
    no      = song number as printed in the community's own (older) ICLA book – see tools/book-index.json
    sheet   = sheet image file (named after the song title)
    youtube = any YouTube link (watch, youtu.be, shorts) – leave "" if none yet;
@@ -9,10 +10,16 @@
    A song left as {} shows "To be announced".
 */
 window.SITE = {
-  updated: "15 Oct 2026, 17:35 (UTC+7)"
+  updated: "30 Oct 2026 (UTC+7)"
 };
 
 window.WEEKS = [
+  {
+    date: "2026-11-01",
+    feast: "Solemnity of All Saints",
+    note: "",
+    songs: { entrance: {}, offertory: {}, recessional: {} }
+  },
   {
     date: "2026-11-07",
     note: "",

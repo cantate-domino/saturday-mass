@@ -1,6 +1,9 @@
-# Saturday English Mass
+# English Mass · St. Joseph Convent
 
-Static page (GitHub Pages) with the three songs for the Saturday English Mass:
+(Repo/URL kept as `saturday-mass` so existing links and QR codes keep working.)
+
+Static page (GitHub Pages) with the three songs for the English Mass at St. Joseph Convent
+(usually Saturday; Sunday or feast-day Masses can be added too):
 Entrance, Offertory, Recessional. Each song shows a YouTube recording and the
 sheet music from the ICLA Song Book.
 
@@ -20,5 +23,5 @@ sheet music from the ICLA Song Book.
    (the PDF number printed on the sheet is blanked out automatically)
 3. Change `SITE.updated`, commit and push.
 
-The page opens the next upcoming Saturday automatically (Vietnam time);
+The page opens the next upcoming Mass automatically (Vietnam time);
 older weeks stay available in the "Week" menu.
