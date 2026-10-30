@@ -1,6 +1,6 @@
 /* English Mass · St. Joseph Convent – song list
    Newest Mass FIRST (usually Saturday; any date works – the label follows the weekday).
-   Each Mass has three songs: entrance, offertory, recessional.
+   Each Mass has three songs: entrance, offertory, recessional (a communion song may be added: communion: {...}).
    no      = song number as printed in the community's own (older) ICLA book – see tools/book-index.json
    sheet   = sheet image file (named after the song title)
    youtube = any YouTube link (watch, youtu.be, shorts) – leave "" if none yet;
@@ -10,7 +10,7 @@
    A song left as {} shows "To be announced".
 */
 window.SITE = {
-  updated: "30 Oct 2026 (UTC+7)"
+  updated: "30 Oct 2026, 23:21 (UTC+7)"
 };
 
 window.WEEKS = [
@@ -18,7 +18,12 @@ window.WEEKS = [
     date: "2026-11-01",
     feast: "Solemnity of All Saints",
     note: "",
-    songs: { entrance: {}, offertory: {}, recessional: {} }
+    songs: {
+      entrance:    { no: 127, title: "All the Ends of the Earth", composer: "Bob Dufford, S.J.", youtube: "https://youtu.be/WURSnRG-bkQ", sheet: "sheets/all-the-ends-of-the-earth-ipa.png" },
+      offertory:   { no: 192, title: "Seed, Scattered and Sown", composer: "Dan Feiten", youtube: "https://youtu.be/b3wm1ZEXaiM", start: 13, sheet: "sheets/seed-scattered-and-sown-ipa.png" },
+      communion:   { no: 173, title: "Christians, Let Us Love One Another", composer: "Tune: Picardy", youtube: "https://www.youtube.com/watch?v=zGnJ1C-zYCo", start: 17, sheet: "sheets/christians-let-us-love-ipa.png" },
+      recessional: { no: 139, title: "Let Heaven Rejoice", composer: "Bob Dufford, S.J.", youtube: "https://www.youtube.com/watch?v=drn4GIEV4v8", sheet: "sheets/let-heaven-rejoice-ipa.png" }
+    }
   },
   {
     date: "2026-11-07",

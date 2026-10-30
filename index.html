@@ -214,7 +214,9 @@ nav.jump a.later.on b{color:#fff}
 <script src="data.js"></script>
 <script>
 (function(){
-  const PARTS = [["entrance","Entrance"],["offertory","Offertory"],["recessional","Recessional"]];
+  const PARTS = [["entrance","Entrance"],["offertory","Offertory"],["communion","Communion"],["recessional","Recessional"]];
+  // Communion only when a Mass lists one (1 Nov 2026); the usual Saturday has three songs
+  const partsOf = sg => PARTS.filter(([k])=>k!=="communion" || (sg && sg.communion));
   const WEEKS = (window.WEEKS||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
   const $ = id => document.getElementById(id);
   const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -252,7 +254,7 @@ nav.jump a.later.on b{color:#fff}
       (sub?'<span class="rs">'+sub+'</span>':'')+(w.feast?'<span class="rf">'+esc(w.feast)+'</span>':'')+'</div>';
   }
   function cards(songs, prefix){
-    return PARTS.map(([k,l])=>{
+    return partsOf(songs).map(([k,l])=>{
       const s = songs[k] && songs[k].title ? songs[k] : {title:"To be announced", tba:true}, id = ytId(s.youtube), st = ytStart(s.youtube, s.start);
       const sheet = s.sheet || (s.no ? "sheets/"+s.no+".png" : "");
       const meta = [s.no ? "ICLA No. "+s.no : "", s.composer||""].filter(Boolean).join(" · ");
@@ -303,7 +305,7 @@ nav.jump a.later.on b{color:#fff}
 
     const nL = later.length;
     const pre = i => i===0 ? "" : "w"+i+"-";
-    const pills = (sg, p, i) => PARTS.map(([k,l])=>{ const s = sg[k]||{};
+    const pills = (sg, p, i) => partsOf(sg).map(([k,l])=>{ const s = sg[k]||{};
       return '<a href="#'+p+k+'" data-k="'+p+k+'" data-w="'+i+'" class="'+(i?'later':'')+'"'+(i?' style="--wk:var(--wk'+Math.min(i,4)+')"':'')+'>'+l+(s.no?'<b>'+s.no+'</b>':'')+'</a>'; }).join("");
     // jump bar: this week + upcoming weeks only
     $("jumpIn").innerHTML = all.slice(0,nL+1).map((x,i)=>pills(x.songs||{}, pre(i), i)).join("");
