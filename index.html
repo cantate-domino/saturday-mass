@@ -72,6 +72,8 @@ main{padding:0 0 8px}
 .meta{font-size:14px;color:var(--ink-3);margin:0}
 /* sung Mass parts (Kyrie, Gloria, Holy …) between the songs */
 .no.ms{border-style:dashed;font-size:20px;font-weight:400}
+.vt{font-family:var(--serif);font-style:italic;font-size:17px;color:var(--ink-2);margin:-4px 0 12px;line-height:1.4}
+.vs{display:inline-block;margin:5px 0 0;font-size:13px;font-weight:600;color:var(--red);background:var(--red-soft);border-radius:999px;padding:2px 10px}
 .song.ms h2{font-size:clamp(22px,4.2vw,27px)}
 .paper picture{display:block}
 
@@ -223,7 +225,7 @@ nav.jump a.later.on b{color:#fff}
 <script>
 (function(){
   // [key, label, short pill label, Mass part?] in the order of the Mass
-  const PARTS = [["entrance","Entrance"],["kyrie","Kyrie","Kyrie",1],["gloria","Gloria","Gloria",1],["offertory","Offertory"],
+  const PARTS = [["entrance","Entrance"],["kyrie","Kyrie","Kyrie",1],["gloria","Gloria","Gloria",1],["alleluia","Gospel Acclamation","Alleluia",1],["offertory","Offertory"],
     ["holy","Sanctus","Holy",1],["mystery","Mystery of Faith","Mystery",1],["amen","Great Amen","Amen",1],["lamb","Agnus Dei","Lamb",1],
     ["communion","Communion"],["recessional","Recessional"]];
   // Communion only when a Mass lists one (1 Nov 2026); the usual Saturday has three songs.
@@ -285,8 +287,8 @@ nav.jump a.later.on b{color:#fff}
         : '<div class="nosheet">'+(s.tba?"The song will be posted soon.":"Sheet music coming soon")+'</div>';
       return '<section class="song'+(s.tba?' tba':'')+(s.ms?' ms':'')+'" id="'+prefix+k+'">'+
         '<div class="song-head">'+(s.no?'<div class="no">'+s.no+'</div>':(s.ms?'<div class="no ms" aria-hidden="true">✠</div>':''))+
-          '<div class="titles"><p class="part">'+l+'</p><h2>'+esc(s.title)+'</h2>'+(meta?'<p class="meta">'+esc(meta)+'</p>':'')+'</div>'+btn+'</div>'+
-        paper+'</section>';
+          '<div class="titles"><p class="part">'+l+'</p><h2>'+esc(s.title)+'</h2>'+(meta?'<p class="meta">'+esc(meta)+'</p>':'')+(s.verses?'<p class="vs">'+esc(s.verses)+'</p>':'')+'</div>'+btn+'</div>'+
+        (s.text?'<p class="vt">'+esc(s.text)+'</p>':'')+paper+'</section>';
     }).join("");
   }
 
