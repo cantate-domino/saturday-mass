@@ -8,9 +8,12 @@
    start   = optional start time in seconds
    feast   = optional celebration of the day, shown under the date
    A song left as {} shows "To be announced".
+   mass    = optional sung Mass parts (Kyrie, Gloria, Holy, Mystery of Faith, Amen, Lamb of God), e.g. for a Sunday or solemnity:
+             mass: { name, composer, kyrie: {title, youtube, start?, sheet, narrow?}, gloria: {...}, holy, mystery, amen, lamb }
+             They are shown in the order of the Mass between the songs. narrow = optional sheet image for phones.
 */
 window.SITE = {
-  updated: "30 Oct 2026, 23:41 (UTC+7)"
+  updated: "31 Oct 2026, 16:35 (UTC+7)"
 };
 
 window.WEEKS = [
@@ -23,6 +26,15 @@ window.WEEKS = [
       offertory:   { no: 192, title: "Seed, Scattered and Sown", composer: "Dan Feiten", youtube: "https://youtu.be/b3wm1ZEXaiM", start: 13, sheet: "sheets/seed-scattered-and-sown-ipa.png" },
       communion:   { no: 173, title: "Christians, Let Us Love One Another", composer: "Tune: Picardy", youtube: "https://www.youtube.com/watch?v=zGnJ1C-zYCo", start: 17, sheet: "sheets/christians-let-us-love-ipa.png" },
       recessional: { no: 226, title: "I Go My Merry Way", composer: "Sœur Sourire, O.P.", youtube: "https://www.youtube.com/watch?v=y1TvgMx5fX8", sheet: "sheets/i-go-my-merry-way-ipa.png" }
+    },
+    mass: {
+      name: "Heritage Mass", composer: "Owen Alstott",
+      kyrie:   { title: "Lord, Have Mercy",        youtube: "https://youtu.be/leRiEVeYosM", start: 4, sheet: "sheets/heritage-lord-have-mercy.png",        narrow: "sheets/heritage-lord-have-mercy-narrow.png" },
+      gloria:  { title: "Glory to God",            youtube: "https://youtu.be/OiytzraJj34", start: 10, sheet: "sheets/heritage-glory-to-god.png",           narrow: "sheets/heritage-glory-to-god-narrow.png" },
+      holy:    { title: "Holy",                    youtube: "https://youtu.be/tICAymLC6rY", start: 4, sheet: "sheets/heritage-holy.png",                   narrow: "sheets/heritage-holy-narrow.png" },
+      mystery: { title: "We Proclaim Your Death",  youtube: "https://youtu.be/g4alz7JVzWM", start: 4, sheet: "sheets/heritage-we-proclaim-your-death.png", narrow: "sheets/heritage-we-proclaim-your-death-narrow.png" },
+      amen:    { title: "Amen",                    youtube: "https://youtu.be/KnpHmv4_mFg", start: 9, sheet: "sheets/heritage-amen.png",                   narrow: "sheets/heritage-amen-narrow.png" },
+      lamb:    { title: "Lamb of God",             youtube: "https://youtu.be/VqcB8wn_pgM", start: 5, sheet: "sheets/heritage-lamb-of-god.png",            narrow: "sheets/heritage-lamb-of-god-narrow.png" }
     }
   },
   {

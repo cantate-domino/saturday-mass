@@ -51,7 +51,11 @@ h1{font-family:var(--serif);font-weight:500;font-size:clamp(30px,6vw,44px);line-
 
 /* jump nav */
 nav.jump{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-nav.jump .wrap{display:flex;gap:8px;justify-content:center;padding-top:8px;padding-bottom:8px;overflow-x:auto}
+nav.jump .wrap{display:flex;gap:8px;justify-content:flex-start;padding-top:8px;padding-bottom:8px;overflow-x:auto;scrollbar-width:none}
+nav.jump .wrap::-webkit-scrollbar{display:none}
+/* centred when the pills fit, scrollable from the first pill when they don't */
+nav.jump .wrap::before,nav.jump .wrap::after{content:"";flex:1 0 0}
+nav.jump a.ms{font-size:13px;color:var(--ink-3)}
 nav.jump a{flex:0 0 auto;text-decoration:none;color:var(--ink-2);font-size:14px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);white-space:nowrap}
 nav.jump a b{color:var(--red);font-weight:600;margin-left:4px}
 nav.jump a.on{background:var(--red);border-color:var(--red);color:#fff}
@@ -59,13 +63,17 @@ nav.jump a.on b{color:#fff}
 
 /* song cards */
 main{padding:0 0 8px}
-.song{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin:0 0 22px;padding:18px 16px;scroll-margin-top:64px}
+.song{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin:0 0 22px;padding:18px 16px;scroll-margin-top:calc(var(--navh) + 76px)}
 .song-head{display:flex;gap:14px;align-items:center;margin-bottom:14px}
 .no{flex:0 0 auto;min-width:52px;height:52px;border-radius:50%;border:1.5px solid var(--red);color:var(--red);display:grid;place-items:center;font-family:var(--serif);font-size:22px;font-weight:600}
 .titles{flex:1;min-width:0}
 .part{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);font-weight:600;margin:0}
 .song h2{font-family:var(--serif);font-weight:500;font-size:clamp(24px,4.6vw,30px);line-height:1.15;margin:2px 0 2px}
 .meta{font-size:14px;color:var(--ink-3);margin:0}
+/* sung Mass parts (Kyrie, Gloria, Holy …) between the songs */
+.no.ms{border-style:dashed;font-size:20px;font-weight:400}
+.song.ms h2{font-size:clamp(22px,4.2vw,27px)}
+.paper picture{display:block}
 
 /* play button beside the title */
 .playbtn{flex:0 0 auto;width:52px;height:52px;border-radius:50%;border:0;background:var(--red);color:#fff;cursor:pointer;display:grid;place-items:center;box-shadow:0 2px 8px rgba(140,26,31,.25);transition:transform .1s}
@@ -214,9 +222,16 @@ nav.jump a.later.on b{color:#fff}
 <script src="data.js"></script>
 <script>
 (function(){
-  const PARTS = [["entrance","Entrance"],["offertory","Offertory"],["communion","Communion"],["recessional","Recessional"]];
-  // Communion only when a Mass lists one (1 Nov 2026); the usual Saturday has three songs
-  const partsOf = sg => PARTS.filter(([k])=>k!=="communion" || (sg && sg.communion));
+  // [key, label, short pill label, Mass part?] in the order of the Mass
+  const PARTS = [["entrance","Entrance"],["kyrie","Kyrie","Kyrie",1],["gloria","Gloria","Gloria",1],["offertory","Offertory"],
+    ["holy","Sanctus","Holy",1],["mystery","Mystery of Faith","Mystery",1],["amen","Great Amen","Amen",1],["lamb","Agnus Dei","Lamb",1],
+    ["communion","Communion"],["recessional","Recessional"]];
+  // Communion only when a Mass lists one (1 Nov 2026); the usual Saturday has three songs.
+  // Mass parts only when the Mass lists a sung setting (w.mass).
+  const partsOf = w => { const sg = w.songs||{}, ms = w.mass||{};
+    return PARTS.filter(([k,,,m])=> m ? !!(ms[k] && ms[k].title) : (k!=="communion" || sg.communion)); };
+  const itemOf = (w,k,m) => { if (!m) return (w.songs||{})[k];
+    const ms = w.mass, s = ms[k]; return Object.assign({ms:true, composer:[ms.name, ms.composer].filter(Boolean).join(" · ")}, s); };
   const WEEKS = (window.WEEKS||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
   const $ = id => document.getElementById(id);
   const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -253,18 +268,20 @@ nav.jump a.later.on b{color:#fff}
     return '<div class="ribbon"><span class="rl">'+label+'</span><span class="rd">'+dm+'</span>'+
       (sub?'<span class="rs">'+sub+'</span>':'')+(w.feast?'<span class="rf">'+esc(w.feast)+'</span>':'')+'</div>';
   }
-  function cards(songs, prefix){
-    return partsOf(songs).map(([k,l])=>{
-      const s = songs[k] && songs[k].title ? songs[k] : {title:"To be announced", tba:true}, id = ytId(s.youtube), st = ytStart(s.youtube, s.start);
+  function cards(w, prefix){
+    return partsOf(w).map(([k,l,,m])=>{
+      const it = itemOf(w,k,m);
+      const s = it && it.title ? it : {title:"To be announced", tba:true}, id = ytId(s.youtube), st = ytStart(s.youtube, s.start);
       const sheet = s.sheet || (s.no ? "sheets/"+s.no+".png" : "");
       const meta = [s.no ? "ICLA No. "+s.no : "", s.composer||""].filter(Boolean).join(" · ");
       const btn = id ? '<button class="playbtn" data-id="'+id+'" data-start="'+st+'" data-title="'+esc(s.title)+'" aria-label="Play '+esc(s.title)+'">'+ICON_PLAY+'</button>' : "";
       const paper = sheet
         ? '<div class="paper" data-src="'+sheet+'" data-title="'+esc((s.no?s.no+" · ":"")+s.title)+'" tabindex="0" role="button" aria-label="Enlarge sheet music">'+
-            '<img src="'+sheet+'" alt="Sheet music: '+esc(s.title)+'" loading="lazy"><span class="zoom-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</span></div>'
+            (s.narrow ? '<picture><source media="(max-width:600px)" srcset="'+s.narrow+'">' : '')+
+            '<img src="'+sheet+'" alt="Sheet music: '+esc(s.title)+'" loading="lazy">'+(s.narrow?'</picture>':'')+'<span class="zoom-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge</span></div>'
         : '<div class="nosheet">'+(s.tba?"The song will be posted soon.":"Sheet music coming soon")+'</div>';
-      return '<section class="song'+(s.tba?' tba':'')+'" id="'+prefix+k+'">'+
-        '<div class="song-head">'+(s.no?'<div class="no">'+s.no+'</div>':'')+
+      return '<section class="song'+(s.tba?' tba':'')+(s.ms?' ms':'')+'" id="'+prefix+k+'">'+
+        '<div class="song-head">'+(s.no?'<div class="no">'+s.no+'</div>':(s.ms?'<div class="no ms" aria-hidden="true">✠</div>':''))+
           '<div class="titles"><p class="part">'+l+'</p><h2>'+esc(s.title)+'</h2>'+(meta?'<p class="meta">'+esc(meta)+'</p>':'')+'</div>'+btn+'</div>'+
         paper+'</section>';
     }).join("");
@@ -305,10 +322,10 @@ nav.jump a.later.on b{color:#fff}
 
     const nL = later.length;
     const pre = i => i===0 ? "" : "w"+i+"-";
-    const pills = (sg, p, i) => partsOf(sg).map(([k,l])=>{ const s = sg[k]||{};
-      return '<a href="#'+p+k+'" data-k="'+p+k+'" data-w="'+i+'" class="'+(i?'later':'')+'"'+(i?' style="--wk:var(--wk'+Math.min(i,4)+')"':'')+'>'+l+(s.no?'<b>'+s.no+'</b>':'')+'</a>'; }).join("");
+    const pills = (x, p, i) => partsOf(x).map(([k,l,sh,m])=>{ const s = itemOf(x,k,m)||{};
+      return '<a href="#'+p+k+'" data-k="'+p+k+'" data-w="'+i+'" class="'+[i?'later':'', m?'ms':''].join(' ').trim()+'"'+(i?' style="--wk:var(--wk'+Math.min(i,4)+')"':'')+'>'+(sh||l)+(s.no?'<b>'+s.no+'</b>':'')+'</a>'; }).join("");
     // jump bar: this week + upcoming weeks only
-    $("jumpIn").innerHTML = all.slice(0,nL+1).map((x,i)=>pills(x.songs||{}, pre(i), i)).join("");
+    $("jumpIn").innerHTML = all.slice(0,nL+1).map((x,i)=>pills(x, pre(i), i)).join("");
     $("jump").dataset.wk = "0";
     $("jump").hidden = false;
     const wd = iso => { const [y,m,d] = iso.split("-").map(Number); return new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-GB",{weekday:"long",timeZone:"UTC"}); };
@@ -320,7 +337,7 @@ nav.jump a.later.on b{color:#fff}
       const isPast = i>nL;
       const col = isPast ? 'var(--past)' : 'var(--wk'+Math.min(i,4)+')';
       return '<div class="wk '+(i?'later':'this')+(isPast?' past':'')+'" id="'+(i?'week-'+i:'this-week')+'" data-w="'+i+'" data-date="'+x.date+'"'+(i?' style="--wk:'+col+'"':'')+'>'+
-        ribbon(label(i), x, sub(i))+cards(x.songs||{}, pre(i))+'</div>';
+        ribbon(label(i), x, sub(i))+cards(x, pre(i))+'</div>';
     }).join("");
 
     document.querySelectorAll(".playbtn").forEach(b=>b.onclick=()=>onPlayBtn(b));
@@ -434,7 +451,10 @@ nav.jump a.later.on b{color:#fff}
     if (!("IntersectionObserver" in window)) return;
     obs = new IntersectionObserver(es=>es.forEach(e=>{
       if(e.isIntersecting) { const k = e.target.id, m = k.match(/^w(\d+)-/); $("jump").dataset.wk = m ? m[1] : "0";
-        const wk = e.target.closest(".wk"), ws = $("wsel"); if (wk && ws && ws.value!==wk.dataset.date) ws.value = wk.dataset.date; document.querySelectorAll("#jumpIn a").forEach(a=>a.classList.toggle("on",a.dataset.k===k)); }
+        const wk = e.target.closest(".wk"), ws = $("wsel"); if (wk && ws && ws.value!==wk.dataset.date) ws.value = wk.dataset.date; document.querySelectorAll("#jumpIn a").forEach(a=>a.classList.toggle("on",a.dataset.k===k));
+        const on = document.querySelector('#jumpIn a.on'), bx = $("jumpIn");
+        if (on && bx.scrollWidth > bx.clientWidth){ const l = on.offsetLeft - bx.offsetLeft, r = l + on.offsetWidth;
+          if (l < bx.scrollLeft + 8) bx.scrollTo({left:l-24, behavior:"smooth"}); else if (r > bx.scrollLeft + bx.clientWidth - 8) bx.scrollTo({left:r-bx.clientWidth+24, behavior:"smooth"}); } }
     }),{rootMargin:"-45% 0px -50% 0px"});
     document.querySelectorAll(".song").forEach(s=>obs.observe(s));
   }

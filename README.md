@@ -21,7 +21,10 @@ sheet music from the ICLA Song Book.
 2. Look up the song in `tools/book-index.json` (book number for the page, `pdf` number for cutting), then
    `python3 tools/crop.py ICLA-SONG-BOOK.pdf tools/icla-index.json <pdf no> sheets/<song-title>.png`
    (the PDF number printed on the sheet is blanked out automatically)
-3. Change `SITE.updated`, commit and push.
+3. Optional: sung Mass parts for a Sunday or solemnity go in `mass` (Kyrie, Gloria, Holy, Mystery of Faith,
+   Amen, Lamb of God); they appear between the songs in the order of the Mass. Heritage Mass sheets: `sheets/heritage-*.png`
+   (`-narrow` versions are used on phones).
+4. Change `SITE.updated`, commit and push.
 
 The page opens the next upcoming Mass automatically (Vietnam time);
 older weeks stay available in the "Week" menu.
