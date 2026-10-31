@@ -255,9 +255,12 @@ nav.jump a.later.on b{color:#fff}
     const m = String(url||"").match(/[?&](?:t|start)=(?:(\d+)h)?(?:(\d+)m)?(\d+)?s?(?:&|$)/);
     return m ? (+(m[1]||0))*3600 + (+(m[2]||0))*60 + (+(m[3]||0)) : 0;
   }
+  // A Mass stays at the top until noon (Vietnam time) on its own day; after that the next Mass moves up.
+  const SWITCH_HOUR = 12;
+  const nowVN = () => new Date(Date.now() + 7*36e5).toISOString().slice(0,16);   // "YYYY-MM-DDTHH:MM", Vietnam (UTC+7, no DST)
   function pickDefault(){
-    const t = todayVN();
-    const up = WEEKS.filter(w=>w.date>=t).sort((a,b)=>a.date.localeCompare(b.date));
+    const now = nowVN(), cut = "T" + String(SWITCH_HOUR).padStart(2,"0") + ":00";
+    const up = WEEKS.filter(w=>w.date + cut > now).sort((a,b)=>a.date.localeCompare(b.date));
     return (up[0]||WEEKS[0]||{}).date;
   }
 
@@ -493,6 +496,11 @@ nav.jump a.later.on b{color:#fff}
     else if (!h) window.scrollTo(0,0);
   });
   render();
+  // a page left open past noon moves on to the next Mass when it is looked at again
+  document.addEventListener("visibilitychange", ()=>{
+    const cur = document.querySelector(".wk.this");
+    if (document.visibilityState === "visible" && cur && cur.dataset.date !== pickDefault() && !(curBtn && player && ready && player.getPlayerState() === 1)) render();
+  });
   { const h = decodeURIComponent(location.hash.slice(1)); if (WEEKS.some(w=>w.date===h)) { const ws=$("wsel"); if(ws) ws.value=h; goWeek(h,false); } }
 })();
 </script>
